@@ -1,0 +1,61 @@
+#必须要先安装依赖的libaio才能正常按照mysql
+sudo apt-get update
+sudo apt-get install libaio-dev
+
+
+
+
+#创建用户组
+sudo groupadd mysql
+#创建用户
+sudo useradd -r -g mysql -s /bin/false mysql
+#尽量把mysql安装到/usr/local目录下面
+cd /usr/local
+sudo cp /home/data/software/DataBase/mysql/mysql-5.7.10-linux-glibc2.5-x86_64.tar.gz ./
+#解压缩安装包
+sudo tar zxvf mysql-5.7.10-linux-glibc2.5-x86_64.tar.gz
+#创建软连接
+sudo ln -s mysql-5.7.10-linux-glibc2.5-x86_64 mysql
+cd mysql
+#创建必须的目录和进行授权
+sudo mkdir mysql-files
+sudo chmod 770 mysql-files
+sudo chown -R mysql .
+sudo chgrp -R mysql .
+#执行安装脚本
+sudo bin/mysqld --initialize --user=mysql
+sudo bin/mysql_ssl_rsa_setup
+#重新对一些主要的目录进行授权，确保安全性
+sudo chown -R root .
+sudo chown -R mysql data mysql-files
+
+#从默认的模板创建配置文件，需要在文件中增加 skip-grant-tables ，以便启动mysql以后修改root用户的密码
+sudo cp support-files/my-default.cnf ./my.cnf
+
+#测试启动，如果能够启动成功，则登陆mysql
+sudo bin/mysqld_safe --user=mysql &
+
+#因为前面修改了my.cnf文件，增加了 skip-grant-tables 参数，所以不需要用户名即可登陆
+#进去后立即修改root用户的密码，密码的字段是 authentication_string
+# update mysql.user set authentication_string=password('1234') where user='root';
+# 修改密码后，再把my.cnf里面的 skip-grant-tables 去掉
+bin/mysql
+
+#复制启动脚本到合适的位置
+sudo cp support-files/mysql.server /etc/init.d/mysql
+
+#增加自动启动
+sudo update-rc.d -f mysql defaults
+
+#增加mysql命令的路径到PATH环境变量
+sudo chmod 777 /etc/profile.d/mysql.sh
+echo "PATH=/usr/local/mysql/bin:\$PATH" > /etc/profile.d/mysql.sh
+sudo chmod 644 /etc/profile.d/mysql.sh
+
+
+
+
+
+
+
+
