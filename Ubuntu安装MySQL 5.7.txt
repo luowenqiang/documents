@@ -1,0 +1,69 @@
+1.把mysql的压缩包（假定文件名为mysql-5.7.10-linux-glibc2.5-x86_64.tar.gz)文件，复制到/usr/local/目录下
+    sudo   cp   mysql-5.7.10-linux-glibc2.5-x86_64.tar.gz   /usr/local/
+
+2.切换到/usr/local/目录下，解压缩文件
+    cd   /usr/local/
+    sudo   tar   -zxf   mysql-5.7.10-linux-glibc2.5-x86_64.tar.gz
+
+    解压后得到mysql-5.7.10-linux-glibc2.5-x86_64目录，接着要创建软链接
+
+3.创建软链接的目的是不想修改第2步解压缩得到的目录名，但让系统看起来MySQL的安装目录又为/usr/local/mysql
+    #      ln命令的第一个字母是小写的L，别写错了
+    sudo   ln  -s   mysql-5.7.10-linux-glibc2.5-x86_64   mysql
+
+4.修改目录权限
+    cd   /usr/local/mysql
+    # 创建运行MySQL服务的专属用户
+    sudo     useradd     mysql
+    # 修改mysql安装目录下所有的文件拥有者都是名为mysql的用户
+    sudo   chown   -R   mysql:mysql   ./
+
+
+5.准备配置文件，并进行基本的配置
+    # 复制一个基本的配置文件
+    sudo    cp    ./support-files/my-default.cnf  ./my.cnf
+    # 修改my.cnf文件的内容
+    sudo    vi    ./my.cnf
+
+内容如下：
+character_set_server=utf8
+lower_case_table_names=1
+
+
+6.安装缺少的依赖包，并执行初始化脚本
+    #如果还没有安装 libaio 依赖，需要先安装以后才能继续
+    sudo    apt    update
+    sudo    apt    install   libaio-dev
+
+    #  执行初始化脚本
+    sudo   ./bin/mysqld   --initialize   --user=mysql
+
+
+    初始化脚本执行成功以后，会在最末尾的地方提示生成了一个随机的密码，需要先记住此密码，在稍后服务安装成功以后，如果使用此密码登录root用户，然后修改root用户的密码。
+
+
+7.增加MySQL的自动启动配置，并启动MySQL服务
+    # 复制启动脚本到初始化设置目录中，并重命名为mysql
+    sudo   cp    ./support-files/mysql.server   /etc/init.d/mysql
+
+    # 更新自动启动设置
+    sudo   update-rc.d   mysql   defaults
+
+   # 启动服务
+    sudo   service   mysql start
+
+
+8.登录MySQL，并修改密码
+    下面$开头的表示Linux的shell命令，>开头的则表示MySQL命令，输入命令的时候不要输入这两个特殊符号
+
+    # 登录本机的MySQL，密码用第6步生成的随机密码
+    $ ./bin/mysql  -u  root  -p
+   # 登录以后修改当前用户的密码为1234
+    > alter   user   user()   identified  by   '1234';
+    > quit
+
+
+如果要进行MySQL的权限管理，请参考 http://www.crazyit.org/thread-12240-1-4.html
+
+
+

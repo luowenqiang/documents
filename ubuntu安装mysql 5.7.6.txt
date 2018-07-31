@@ -35,11 +35,16 @@ sudo cp support-files/my-default.cnf ./my.cnf
 #测试启动，如果能够启动成功，则登陆mysql
 sudo bin/mysqld_safe --user=mysql &
 
-#因为前面修改了my.cnf文件，增加了 skip-grant-tables 参数，所以不需要用户名即可登陆
-#进去后立即修改root用户的密码，密码的字段是 authentication_string
-# update mysql.user set authentication_string=password('1234') where user='root';
-# 修改密码后，再把my.cnf里面的 skip-grant-tables 去掉
-bin/mysql
+    #因为前面修改了my.cnf文件，增加了 skip-grant-tables 参数，所以不需要用户名即可登陆
+    #进去后立即修改root用户的密码，密码的字段是 authentication_string
+    # update mysql.user set authentication_string=password('1234') where user='root';
+    # 修改密码后，再把my.cnf里面的 skip-grant-tables 去掉
+    bin/mysql
+
+# PS  修改密码也可以使用安装到时候提示到随机密码进行登录，然后使用下面到命令修改密码。
+# 建议用下面的方式设置数据库的密码
+alter user user() identified by '1234';
+
 
 #复制启动脚本到合适的位置
 sudo cp support-files/mysql.server /etc/init.d/mysql
@@ -48,8 +53,9 @@ sudo cp support-files/mysql.server /etc/init.d/mysql
 sudo update-rc.d -f mysql defaults
 
 #增加mysql命令的路径到PATH环境变量
+sudo touch /etc/profile.d/mysql.sh
 sudo chmod 777 /etc/profile.d/mysql.sh
-echo "PATH=/usr/local/mysql/bin:\$PATH" > /etc/profile.d/mysql.sh
+sudo echo "PATH=/usr/local/mysql/bin:\$PATH" > /etc/profile.d/mysql.sh
 sudo chmod 644 /etc/profile.d/mysql.sh
 
 

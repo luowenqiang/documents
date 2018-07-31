@@ -1,0 +1,64 @@
+在/etc/apache2/mods-enabled下面执行如下命令，激活模块
+
+sudo ln -s ../mods-available/proxy.conf proxy.conf
+sudo ln -s ../mods-available/proxy.load proxy.load
+sudo ln -s ../mods-available/proxy_balancer.conf proxy_balancer.conf
+sudo ln -s ../mods-available/proxy_balancer.load proxy_balancer.load
+sudo ln -s ../mods-available/slotmem_shm.load slotmem_shm.load
+
+sudo ln -s ../mods-available/proxy_ajp.load proxy_ajp.load
+sudo ln -s ../mods-available/lbmethod_byrequests.load lbmethod_byrequests.load
+
+在/etc/apache2/sites-available创建tomcat.conf，内容如下：
+
+# 第一个参数表示要代理的路径，第二个参数是均衡器的名称
+ProxyPass / balancer://tomcat/
+
+# 加上下面一行的时候，如果重定向的时候返回http开头的URL，会重写响应头，避免把内网的IP、端口重定向给浏览器
+ProxyPassReverse / balancer://tomcat/
+
+
+# 配置均衡器
+<Proxy balancer://tomcat/>
+    # 集群里面有多少个tomcat，就配置多少个均衡器成员
+    BalancerMember ajp://10.0.0.104:8009/
+    BalancerMember ajp://10.0.0.105:8009/
+</Proxy>
+
+
+在/etc/apache2/sites-enabled执行，激活站点
+
+sudo ln -s ../sites-available/tomcat.conf tomcat.conf
+
+
+服务器状态和负载均衡管理器页面的访问：
+1.修改tomcat.conf，在前面增加如下内容：
+ProxyPass /server-status !
+ProxyPass /balancer-manager !
+
+
+2.修改status.conf文件，允许任何位置访问服务器状态
+	<Location /server-status>
+		SetHandler server-status
+		#Require local
+		#Require ip 192.0.2.0/24
+		Allow from all
+	</Location>
+
+3.修改proxy_balancer.conf文件，允许任何位置访问集群管理器
+	<IfModule mod_status.c>
+	   <Location /balancer-manager>
+		   SetHandler balancer-manager
+		   #Require local
+		   Allow from all
+	   </Location>
+	</IfModule>
+
+
+
+
+
+
+
+
+

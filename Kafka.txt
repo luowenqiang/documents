@@ -1,0 +1,31 @@
+#启动zk
+sudo ./bin/zookeeper-server-start.sh  ./config/zookeeper.properties
+
+#启动Kafka
+sudo ./bin/kafka-server-start.sh  ./config/server.properties
+
+
+#创建topic
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-raw-message
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message-event
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message-image
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message-link
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message-location
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message-shortvideo
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message-text
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message-video
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-in-message-voice
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic wechat-out-message
+
+
+#列出topic
+./bin/kafka-topics.sh --list --zookeeper localhost:2181
+
+#监控topics
+./bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic wechat-in-raw-message
+./bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic wechat-in-message
+
+
+# 在控制台消费数据
+./bin/kafka-console-consumer.sh  --zookeeper localhost:2181  --topic wechat-in-message --from-beginning

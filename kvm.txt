@@ -1,0 +1,60 @@
+安装查询操作系统信息的工具
+    sudo apt install libosinfo-bin
+
+
+安装KVM和管理器
+    sudo apt-get install qemu qemu-kvm virt-manager
+
+
+创建虚拟磁盘
+    qemu-img create -f qcow2 apache.img 5G
+
+打印配置信息
+    
+    --print-xml
+
+
+创建并安装虚拟机
+    virt-install --name NAME --ram RAM STORAGE INSTALL [options]
+
+sudo virt-install --name g1 \
+    --ram 1024 \
+    --memory 512,maxmemory=1024 \
+    --vcpus 2 \
+    --location /data/operation-system/Linux/ubuntu/ubuntu-16.04-server-amd64.iso \
+    --disk /home/working/vm/cluster-images/apache.img \
+    --network bridge=virbr0 \
+    --hvm
+
+
+sudo virt-install --name g2 \
+    --ram 1024 \
+    --memory 512,maxmemory=1024 \
+    --vcpus 2 \
+    --location /data/operation-system/Linux/ubuntu/ubuntu-16.04-server-amd64.iso \
+    --disk pool=cluster-images,size=10 \
+    --network bridge=virbr0 \
+    --os-variant ubuntu16.04
+
+
+sudo virt-install --name g3 \
+    --memory 512,maxmemory=1024 \
+    --location /data/operation-system/Linux/ubuntu/ubuntu-16.04-server-amd64.iso \
+    --disk pool=cluster-images,size=10 \
+    --network bridge=virbr0 \
+    --os-variant ubuntu16.04
+
+
+virt-install --name base \
+--memory 512,maxmemory=1024 \
+--location /home/lwq/ubuntu-16.04-server-amd64 \
+--disk pool=cluster-images,size=10  \
+--network bridge=virbr0 \
+--os-variant ubuntu16.04
+
+
+
+
+
+
+
